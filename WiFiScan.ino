@@ -1,5 +1,5 @@
+//Jorge Ovejas y Claudio Murciano
 #include "WiFi.h"
-
 // Configuración para el control del LED
 #define LEDC_TIMER_12_BIT 12       // Resolución de 12 bits para el temporizador LEDC
 #define LEDC_BASE_FREQ 5000        // Frecuencia base de 5000 Hz
