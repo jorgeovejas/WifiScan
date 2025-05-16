@@ -1,33 +1,30 @@
-//Jorge Ovejas y Claudio Murciano
+//Jorge Ovejas
 #include "WiFi.h"
-// Configuración para el control del LED
-#define LEDC_TIMER_12_BIT 12       // Resolución de 12 bits para el temporizador LEDC
-#define LEDC_BASE_FREQ 5000        // Frecuencia base de 5000 Hz
-#define LED_PIN 5                  // Pin donde está conectado el LED
-#define LEDC_MAX_DUTY 4095         // Valor máximo de duty cycle (4095 para 12 bits)
+//Control del LED
+#define LEDC_TIMER_12_BIT 12 
+#define LEDC_BASE_FREQ 5000  
+#define LED_PIN 5                  
+#define LEDC_MAX_DUTY 4095       
 
 
-const char* targetSSID = "iPhone Claudio";  // Reemplaza "TuSSID" con el SSID de la red WiFi que desees
+const char* targetSSID = "TuSSID";  // Reemplazar "TuSSID" con el SSID de la red WiFi que deseamos scannear
 
 void setup() {
-  // Inicializar comunicación serial
   Serial.begin(115200);
-
-  // Configurar el modo WiFi en estación y desconectar cualquier AP previo
+  
   WiFi.mode(WIFI_STA);
   WiFi.disconnect();
   delay(100);
 
   Serial.println("Setup done");
 
-  // Configurar el temporizador para el LED
   ledcAttach(LED_PIN, LEDC_BASE_FREQ, LEDC_TIMER_12_BIT);
 }
 
 void loop() {
   Serial.println("Scan start");
 
-  // Escanear redes WiFi disponibles
+  // Funcion de escanear redes
   int n = WiFi.scanNetworks();
   Serial.println("Scan done");
   if (n == 0) {
@@ -37,8 +34,8 @@ void loop() {
     Serial.println(" networks found");
     Serial.println("Nr | SSID                             | RSSI | CH | Encryption");
 
-    // Variable para almacenar el RSSI del SSID específico
-    long targetRSSI = -70;  // Valor inicial muy bajo
+    // Variable para almacenar el RSSI del SSID
+    long targetRSSI = -70;
 
     for (int i = 0; i < n; ++i) {
       Serial.printf("%2d", i + 1);
@@ -72,18 +69,16 @@ void loop() {
       delay(10);
     }
 
-    // Si encontramos la red WiFi deseada, ajustar el brillo del LED
+    // Si encontramos la red WiFi deseada, se ajusta el brillo del led de nuestra placa
     if (targetRSSI != -1000) {
-      // Mapear el RSSI al rango del PWM (de -100 a 0 dBm se mapea a 0 a 4095)
       int dutyCycle = map(targetRSSI, -100, 0, 0, LEDC_MAX_DUTY);
-      dutyCycle = constrain(dutyCycle, 0, LEDC_MAX_DUTY);  // Asegurar que esté en el rango válido
+      dutyCycle = constrain(dutyCycle, 0, LEDC_MAX_DUTY);
 
-      // Ajustar el brillo del LED según la intensidad de la señal del SSID específico
       ledcWrite(LED_PIN, dutyCycle);
       Serial.print("Brillo del LED ajustado a: ");
       Serial.println(dutyCycle);
     } else {
-      // Si no se encuentra el SSID, apagar el LED
+      // Si no se encuentra SSID, apagar el LED
       ledcWrite(LED_PIN, 0);
       Serial.println("SSID no encontrado, LED apagado.");
     }
@@ -91,9 +86,9 @@ void loop() {
 
   Serial.println("");
 
-  // Liberar memoria de los resultados de escaneo
+  // Liberamos memoria del scan de antes
   WiFi.scanDelete();
 
-  // Esperar antes de escanear de nuevo
+  // Delay para esperar antes de que vuelva a escanear
   delay(5000);
 }
